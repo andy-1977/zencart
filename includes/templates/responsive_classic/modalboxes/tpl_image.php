@@ -13,7 +13,7 @@ $main_large_image = !empty($products_image_large) ? $products_image_large : $pro
 ?>
 
 <div id="productMainImage" class="centeredContent back">
-    <a href="<?php echo $main_large_image; ?>"
+    <a href="<?php echo htmlspecialchars($main_large_image, ENT_QUOTES, 'UTF-8'); ?>"
        onclick="openModal('imageModalPrimary'); return false;"
        title="View larger image of <?php echo htmlspecialchars($products_name, ENT_QUOTES, 'UTF-8'); ?>"
        rel="noopener">

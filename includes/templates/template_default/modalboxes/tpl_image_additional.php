@@ -28,9 +28,9 @@
 <!-- Thumbnail for additional image -->
 <div class="back">
     <a id="<?= $modal_link_id ?>"
-       href="<?= $image['products_image_large']; ?>"
+       href="<?= htmlspecialchars($large_image, ENT_QUOTES, 'UTF-8'); ?>"
        onclick="openModal('<?= $modal_id ?>'); return false;"
-       title="View larger image of <?= htmlspecialchars($image['products_name'], ENT_QUOTES, 'UTF-8'); ?>">
+       title="<?= htmlspecialchars(TEXT_CLICK_TO_ENLARGE . ' ' . $image['products_name'], ENT_QUOTES, 'UTF-8'); ?>">
        
         <?= $modal_link_img; ?>
         

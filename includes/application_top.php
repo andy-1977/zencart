@@ -124,19 +124,27 @@ if (!$contaminated) {
 }
 
 /**
+ * reject long query strings
  * reject suspicious non-ASCII characters
  * allows standard printable ASCII but flags common exploit symbols
  */
-if (!empty($_SERVER['QUERY_STRING'])) {
+if (!$contaminated && !empty($_SERVER['QUERY_STRING'])) {
+
+    // define pages that need long query strings
+    $long_query_pages = ['checkout_process', 'checkout_payment', 'checkout', 'checkout_one', 'checkout_one_confirmation'];
+
+    // set a dynamic length limit
+    // allow 2048 characters for payment pages, but keep the strict 256 for everything else
+    $max_length = in_array($_GET['main_page'] ?? '', $long_query_pages) ? 2048 : 256;
+
+    // cap query string length (prevents buffer overflow/fuzzing)
+    if (strlen($_SERVER['QUERY_STRING']) > $max_length) {
+        $contaminated = true;
+    }
 
     // check for the specific '¤' (%C2%A4) or characters outside standard range
     // allow basic printable ASCII but specifically target high-bit "junk"
     if (preg_match('/[\x00-\x1F\x7F-\xFF]/', $_SERVER['QUERY_STRING'])) {
-        $contaminated = true;
-    }
-
-    // cap query string length (prevents buffer overflow/fuzzing)
-    if (strlen($_SERVER['QUERY_STRING']) > 256) {
         $contaminated = true;
     }
 }
@@ -165,7 +173,7 @@ if (!empty($_SERVER['QUERY_STRING'])) {
 
     // count occurrences of each key
     $counts = array_count_values($keys);
-    foreach ($counts as $name => $count) {
+    foreach ($counts as $key => $count) {
         // allow one duplication (possibly accidental), more than 2 is not accidental
         if ($count > 2) {
             $contaminated = true;
@@ -222,7 +230,7 @@ define('PAGE_PARSE_START_TIME', microtime());
  * This is intended to run before any dependencies are required
  * See https://www.zen-cart.com/requirements or run zc_install to see actual requirements!
  */
-if (PHP_VERSION_ID < 80200) {
+if (PHP_VERSION_ID < 80300) {
     require 'includes/templates/template_default/templates/tpl_zc_phpupgrade_default.php';
     exit(0);
 }

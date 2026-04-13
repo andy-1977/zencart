@@ -117,6 +117,52 @@ function issetorArray(array $array, $key, $default = null)
     return isset($array[$key]) ? $array[$key] : $default;
 }
 
+/**
+ * Returns the CSRF token supplied for the current request, preferring the request header.
+ *
+ * If both the request header and POST field are present but don't match, `null` is returned
+ * so callers fail closed rather than silently choosing one source.
+ *
+ * @since ZC v3.0.0
+ */
+function zen_get_csrf_token_from_request(): ?string
+{
+    $headerToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+    $postToken = $_POST['securityToken'] ?? null;
+
+    $hasHeaderToken = is_string($headerToken) && $headerToken !== '';
+    $hasPostToken = is_string($postToken) && $postToken !== '';
+
+    if ($hasHeaderToken) {
+        if ($hasPostToken && !hash_equals($headerToken, $postToken)) {
+            return null;
+        }
+
+        return $headerToken;
+    }
+
+    return $hasPostToken ? $postToken : null;
+}
+
+/**
+ * Validates the current request's CSRF token against the session token.
+ *
+ * @since ZC v3.0.0
+ */
+function zen_request_has_valid_csrf_token(): bool
+{
+    if (!isset($_SESSION['securityToken']) || !is_string($_SESSION['securityToken']) || $_SESSION['securityToken'] === '') {
+        return false;
+    }
+
+    $requestToken = zen_get_csrf_token_from_request();
+    if (!is_string($requestToken) || $requestToken === '') {
+        return false;
+    }
+
+    return hash_equals($_SESSION['securityToken'], $requestToken);
+}
+
 
 /**
  * Get a shortened filename to fit within the db field constraints
@@ -634,4 +680,35 @@ function zen_get_orders_status()
 {
    trigger_error('Call to deprecated function; please use new names', E_USER_DEPRECATED);
    return zen_get_orders_status_pulldown_array();
+}
+
+/**
+ * Add a 'cache-busting' parameter to a CSS/JS file, using its last-modified timestamp.
+ *
+ * Storefront usage takes only the first parameter, since all storefront CSS/JS files (whether
+ * in the /includes/templates subdirectories or in a zc_plugin) are within
+ * DIR_FS_CATALOG.
+ *
+ * Admin usage takes either one (for CSS/JS files located in the 'base' admin/includes directory) or
+ * two parameters when a file is located in a zc_plugin's admin/includes directory.
+ *
+ * @since ZC v3.0.0
+ */
+function zen_add_filemtime(string $relative_path, ?string $absolute_path = null): string
+{
+    if (IS_ADMIN_FLAG === true) {
+        $absolute_path ??= DIR_FS_ADMIN . $relative_path;
+    } else {
+        $absolute_path = DIR_FS_CATALOG . $relative_path;
+    }
+
+    if (!is_file($absolute_path)) {
+        return $relative_path;
+    }
+
+    $mtime = filemtime($absolute_path);
+    if ($mtime === false) {
+        return $relative_path;
+    }
+    return $relative_path . '?' . $mtime;
 }

@@ -19,8 +19,8 @@
 <script title="jQuery plugin initializations">
 // init datepicker defaults with localization
   jQuery(function () {
-    jQuery.datepicker.setDefaults(jQuery.extend({}, jQuery.datepicker.regional["<?php echo $_SESSION['languages_code'] == 'en' ? '' : $_SESSION['languages_code']; ?>"], {
-      dateFormat: '<?php echo DATE_FORMAT_DATE_PICKER; ?>',
+    jQuery.datepicker.setDefaults(jQuery.extend({}, jQuery.datepicker.regional["<?= $_SESSION['languages_code'] == 'en' ? '' : $_SESSION['languages_code'] ?>"], {
+      dateFormat: '<?= DATE_FORMAT_DATE_PICKER ?>',
       changeMonth: true,
       changeYear: true,
       showOtherMonths: true,
@@ -45,14 +45,14 @@ $searchBoxScriptArray = [
 ];
 $searchBoxJs = 'includes/javascript/searchBox.js';
 if (in_array(basename($PHP_SELF, '.php'), $searchBoxScriptArray) && file_exists($searchBoxJs)) {
-    ?>
-    <script defer src="<?= $searchBoxJs; ?>"></script>
-    <?php
+?>
+<script defer src="<?= zen_add_filemtime($searchBoxJs) ?>"></script>
+<?php
 }
 ?>
 
 <?php if (file_exists($jsFile = 'includes/javascript/' . basename($PHP_SELF, '.php') . '.js')) { ?>
-<script src="<?php echo $jsFile; ?>"></script>
+<script src="<?= zen_add_filemtime($jsFile) ?>"></script>
 <?php
 }
 if (file_exists($jsFile = 'includes/javascript/' . basename($PHP_SELF, '.php') . '.php')) {
@@ -63,7 +63,7 @@ $directory_array = $template->get_template_part('includes/javascript/', '/^' . b
 foreach ($directory_array as $key => $value) {
     echo "\n";
 ?>
-<script src="includes/javascript/<?php echo $value; ?>"></script>
+<script src="<?= zen_add_filemtime('includes/javascript/' . $value) ?>"></script>
 <?php
 }
 $directory_array = $template->get_template_part('includes/javascript/', '/^' . basename($PHP_SELF, '.php') . '_/', '.php');
@@ -90,8 +90,9 @@ foreach ($installedPlugins as $plugin) {
     $directory_array = $template->get_template_part($absoluteDir . 'admin/includes/javascript/', '/^global_jscript/', '.js');
     foreach ($directory_array as $key => $value) {
         echo "\n";
+        $value = 'admin/includes/javascript/' . $value;
         ?>
-        <script src="<?php echo $relativeDir; ?>admin/includes/javascript/<?php echo $value; ?>"></script>
+        <script src="<?= zen_add_filemtime($relativeDir . $value, $absoluteDir . $value) ?>"></script>
         <?php
     }
     if (file_exists($absoluteDir . 'admin/includes/javascript/' . basename($PHP_SELF, '.php') . '.php')) {
@@ -100,15 +101,17 @@ foreach ($installedPlugins as $plugin) {
     }
     if (file_exists($absoluteDir . 'admin/includes/javascript/' . basename($PHP_SELF, '.php') . '.js')) {
         echo "\n";
+        $value = 'admin/includes/javascript/' . basename($PHP_SELF, '.php') . '.js';
 ?>
-        <script src="<?php echo $relativeDir ?>admin/includes/javascript/<?php echo basename($PHP_SELF, '.php') . '.js'; ?>"></script>
+        <script src="<?= zen_add_filemtime($relativeDir . $value, $absoluteDir . $value) ?>"></script>
 <?php
     }
     $directory_array = $template->get_template_part($absoluteDir . 'admin/includes/javascript/', '/^' . basename($PHP_SELF, '.php') . '_/', '.js');
     foreach ($directory_array as $key => $value) {
         echo "\n";
+        $value = 'admin/includes/javascript/' . $value;
         ?>
-        <script src="<?php echo $relativeDir; ?>admin/includes/javascript/<?php echo $value; ?>"></script>
+        <script src="<?= zen_add_filemtime($relativeDir . $value, $absoluteDir . $value) ?>"></script>
         <?php
     }
     $directory_array = $template->get_template_part($absoluteDir . 'admin/includes/javascript/', '/^' . basename($PHP_SELF, '.php') . '_/', '.php');

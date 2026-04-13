@@ -11,10 +11,9 @@ if (!defined('IS_ADMIN_FLAG')) {
 /**
  * Get all template directories found in catalog folder structure
  *
- * @return array
  * @since ZC v1.5.8
  */
-function zen_get_catalog_template_directories($include_template_default = false)
+function zen_get_catalog_template_directories(bool $include_template_default = false): array
 {
     if (!defined('DIR_FS_CATALOG_TEMPLATES')) {
         die('Fatal error: DIR_FS_CATALOG_TEMPLATES not defined.');
@@ -29,7 +28,7 @@ function zen_get_catalog_template_directories($include_template_default = false)
         if (!is_dir($path)) {
             continue;
         }
-        if ($include_template_default !== true && $tpl_dir_name == 'template_default') {
+        if ($include_template_default !== true && $tpl_dir_name === 'template_default') {
             continue;
         }
         if (file_exists($path . '/template_info.php')) {
@@ -37,14 +36,14 @@ function zen_get_catalog_template_directories($include_template_default = false)
             require $path . '/template_info.php';
             // expects the following variables to be set inside each respective template_info.php file
             $template_info[$tpl_dir_name] = [
-                'name' => $template_name,
-                'version' => $template_version,
-                'author' => $template_author,
+                'name' => zen_output_string_protected($template_name),
+                'version' => zen_output_string_protected($template_version),
+                'author' => zen_output_string_protected($template_author),
                 'description' => $template_description,
-                'screenshot' => $template_screenshot,
+                'screenshot' => zen_output_string_protected($template_screenshot),
                 'uses_single_column_layout_settings' => !empty($uses_single_column_layout_settings),
                 'uses_mobile_sidebox_settings' => !isset($uses_mobile_sidebox_settings) || !empty($uses_mobile_sidebox_settings),
-                'template_path' => $path,
+                'template_path' => zen_output_string_protected($path),
                 'has_template_settings' => file_exists($path . '/template_settings.php'),
             ];
         }
@@ -56,10 +55,13 @@ function zen_get_catalog_template_directories($include_template_default = false)
 /**
  * @since ZC v1.5.8
  */
-function zen_register_new_template($template_dir, $language_id)
+function zen_register_new_template(string $template_dir, int|string $language_id): false|int|string
 {
-    // @TODO: add duplicate-detection and empty-submission detection
     global $db;
+    if (empty($template_dir) || empty($language_id)) {
+        return false;
+    }
+    // check if template already registered for this language
     $sql = "SELECT *
             FROM " . TABLE_TEMPLATE_SELECT . "
             WHERE template_language = :lang:";
@@ -80,7 +82,7 @@ function zen_register_new_template($template_dir, $language_id)
  * @return array of language_name and language_id entries
  * @since ZC v1.5.8
  */
-function zen_get_template_languages_not_registered()
+function zen_get_template_languages_not_registered(): array
 {
     global $db;
     $templates = [];
@@ -95,11 +97,11 @@ function zen_get_template_languages_not_registered()
 }
 
 /**
- * @param int $id
+ * @param numeric $id
  * @param string $template_dir
  * @since ZC v1.5.8
  */
-function zen_update_template_name_for_id($id, $template_dir)
+function zen_update_template_name_for_id(int|string $id, string $template_dir): void
 {
     global $db;
     $sql = "UPDATE " . TABLE_TEMPLATE_SELECT . "
@@ -111,11 +113,11 @@ function zen_update_template_name_for_id($id, $template_dir)
 }
 
 /**
- * @param int $id
+ * @param numeric $id
  * @return bool whether template existed before delete
  * @since ZC v1.5.8
  */
-function zen_deregister_template_id($id)
+function zen_deregister_template_id(int|string $id): bool
 {
     global $db;
     $check_query = $db->Execute("SELECT template_language

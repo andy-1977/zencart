@@ -16,13 +16,13 @@ $template_info = zen_get_catalog_template_directories();
 if (!empty($action)) {
     switch ($action) {
         case 'insert':
-            $selected_template = zen_register_new_template($_POST['ln'], $_POST['lang']);
+            $selected_template = zen_register_new_template($_POST['ln'], (int)$_POST['lang']);
             $action = '';
             break;
 
         case 'save':
             zen_update_template_name_for_id($selected_template, $_POST['ln']);
-            $init_file = DIR_FS_CATALOG . 'includes/templates/' . $_POST['ln'] . '/template_init.php';
+            $init_file = DIR_FS_CATALOG . 'includes/templates/' . basename($_POST['ln']) . '/template_init.php';
             if (file_exists($init_file)) {
                 require $init_file;
             }
@@ -30,7 +30,7 @@ if (!empty($action)) {
             break;
 
         case 'deleteconfirm':
-            zen_deregister_template_id($_POST['tID']);
+            zen_deregister_template_id((int)$_POST['tID']);
             zen_redirect(zen_href_link(FILENAME_TEMPLATE_SELECT, 'page=' . $_GET['page']));
             $action = '';
             break;
@@ -155,7 +155,7 @@ switch ($action) {
             }
             $template_array[] = [
                 'id' => $key,
-                'text' => $value['name'],
+                'text' => $value['name'] . ' (' . ($value['version'] ?? 'V0') . ')',
             ];
         }
         $lns = zen_get_template_languages_not_registered();
@@ -194,7 +194,7 @@ switch ($action) {
             if (isset($value['missing'])) {
                 continue;
             }
-            $template_array[] = ['id' => $key, 'text' => $value['name']];
+            $template_array[] = ['id' => $key, 'text' => $value['name'] . ' (' . ($value['version'] ?? 'V0') . ')',];
         }
         $contents[] = [
             'text' =>
@@ -240,7 +240,7 @@ switch ($action) {
         $contents[] = ['text' => TEXT_INFO_TEMPLATE_NAME . ': <strong>"' . $template_info[$tInfo->template_dir]['name'] . '</strong>"'];
         $contents[] = ['text' => TEXT_INFO_TEMPLATE_AUTHOR . $template_info[$tInfo->template_dir]['author']];
         $contents[] = ['text' => TEXT_INFO_TEMPLATE_VERSION . $template_info[$tInfo->template_dir]['version']];
-        $contents[] = ['text' => TEXT_INFO_TEMPLATE_DESCRIPTION . '<br>' . $template_info[$tInfo->template_dir]['description']];
+        $contents[] = ['text' => TEXT_INFO_TEMPLATE_DESCRIPTION . '<br>' . strip_tags($template_info[$tInfo->template_dir]['description'], ['br', 'em', 'strong'])];
         if ($template_info[$tInfo->template_dir]['has_template_settings'] === true) {
             $template_settings_button =
             '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#view-settings">' .
@@ -325,10 +325,10 @@ if (empty($action)) {
         </div>
         <!-- body_text_eof //-->
     </div>
-    <!-- body_eof //-->
-    <!-- footer //-->
-    <?php require DIR_WS_INCLUDES . 'footer.php'; ?>
-    <!-- footer_eof //-->
+<!-- body_eof //-->
+<!-- footer //-->
+<?php require DIR_WS_INCLUDES . 'footer.php'; ?>
+<!-- footer_eof //-->
 </body>
 </html>
 <?php require DIR_WS_INCLUDES . 'application_bottom.php'; ?>

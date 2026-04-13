@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        php-version: ['8.2', '8.3', '8.5']
+        php-version: ['8.3', '8.4', '8.5']
 
     continue-on-error: ${{ matrix.php-version == '8.6' }}
 
@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -84,11 +84,23 @@ jobs:
       - name: Test Apache Status
         run: sudo service apache2 status
 
-      - name: Execute Store Feature Tests
-        run: php vendor/bin/phpunit  --verbose --testsuite FeatureStore --printer 'Sempro\PHPUnitPrettyPrinter\PrettyPrinterForPhpUnit9'
+      - name: Execute Store Feature Test CI Buckets
+        env:
+          ZC_TEST_DB_BASE_NAME: db
+          ZC_TEST_DB_WORKERS: 2
+          ZC_TEST_DB_INCLUDE_BASE: 0
+        run: composer tests-feature-store
+
+      - name: Execute Plugin-Local Store Feature Tests
+        run: |
+          if composer tests-plugin -- --suite FeatureStore --dry-run; then
+            composer tests-plugin -- --suite FeatureStore
+          else
+            echo "No plugin-local storefront feature tests found."
+          fi
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: artifacts-${{ matrix.php-version }}

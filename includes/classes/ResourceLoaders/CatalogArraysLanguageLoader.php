@@ -217,8 +217,7 @@ class CatalogArraysLanguageLoader extends ArraysLanguageLoader
         $defineListTemplate = $this->loadArraysFromDirectory(DIR_WS_LANGUAGES, $_SESSION['language'], '/extra_definitions/' . $this->templateDir);
 
         // -----
-        // Add these extra definitions to the array of definitions to be created, if not further overridden
-        // by any 'legacy' language files to be loaded.
+        // Add these extra definitions to the array of definitions to be created.
         //
         $this->addLanguageDefines(array_merge($defineList, $defineListTemplate));
     }

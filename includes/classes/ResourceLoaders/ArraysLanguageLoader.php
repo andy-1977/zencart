@@ -250,7 +250,7 @@ class ArraysLanguageLoader extends BaseLanguageLoader
             return [];
         }
 
-        $this->mainLoader->addLanguageFilesLoaded('arrays', $definesFile);
+        $this->mainLoader->addLanguageFilesLoaded($definesFile);
         // file should return a variable 
         $definesList = require $definesFile;
         return $definesList; 

@@ -3,18 +3,18 @@ name: Zen Cart Unit Tests
 on: [push, pull_request]
 
 jobs:
-  unit-tests:
+  tests-unit:
     permissions:
       contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ['8.2', '8.3', '8.4', '8.5']
+        php-version: ['8.3', '8.4', '8.5', '8.6']
     continue-on-error: ${{ matrix.php-version == '8.6' }}
     name: PHP ${{ matrix.php-version }} Unit Tests
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -34,11 +34,21 @@ jobs:
         run: |
           touch includes/configure.php
 
-      - name: Run UnitTests suite
-        run: php vendor/bin/phpunit --verbose --process-isolation --testsuite=Unit --debug
+      - name: Run Unit Test CI Workflow
+        env:
+          ZC_PARALLEL_PROCESSES: 4
+        run: composer tests-unit
+
+      - name: Run Plugin-Local Unit Tests
+        run: |
+          if composer tests-plugin -- --suite Unit --dry-run; then
+            composer tests-plugin -- --suite Unit
+          else
+            echo "No plugin-local unit tests found."
+          fi
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: artifacts-${{ matrix.php-version }}

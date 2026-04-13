@@ -7,8 +7,6 @@ use Tests\Support\helpers\ProfileManager;
 
 trait CustomerAccountConcerns
 {
-
-
     public function createCustomerAccountOrLogin($profileName)
     {
         $profile = ProfileManager::getProfile($profileName);
@@ -16,35 +14,50 @@ trait CustomerAccountConcerns
             $this->loginCustomer($profileName);
             return $profile;
         }
-        $this->browser->request('GET', HTTP_SERVER . '/index.php?main_page=create_account');
-        $response = $this->browser->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->browser->submitForm('Submit the Information', $profile);
-        $response = $this->browser->getResponse();
-        $this->assertStringContainsString('Your Account Has Been Created', (string)$response->getContent());
-        return $profile;
+
+        if (method_exists($this, 'submitCreateAccountForm')) {
+            $response = $this->submitCreateAccountForm($profile)
+                ->assertRedirect('main_page=create_account_success');
+
+            $this->followRedirect($response)
+                ->assertOk()
+                ->assertSee('Your Account Has Been Created!');
+
+            return $profile;
+        }
+
+        throw new \LogicException('Customer account helpers require in-process storefront form helpers.');
     }
 
     public function logoutCustomer()
     {
-        //echo 'Logging out customer' . PHP_EOL;
-        $this->browser->request('GET', HTTP_SERVER . '/index.php?main_page=logoff');
-        $response = $this->browser->getResponse();
-        $this->assertStringContainsString('Log Off', (string)$response->getContent());
+        if (method_exists($this, 'visitLogoff')) {
+            $this->visitLogoff()
+                ->assertOk()
+                ->assertSee('Log Off');
+            return;
+        }
+
+        throw new \LogicException('Customer logout helper requires in-process storefront navigation helpers.');
     }
 
     public function loginCustomer($profileName)
     {
-        //echo 'Logging in customer ' . $profileName . PHP_EOL;
         $this->logoutCustomer();
-        $this->browser->request('GET', HTTP_SERVER . '/index.php?main_page=login');
-        $response = $this->browser->getResponse();
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('Welcome, Please Sign In', (string)$response->getContent());
 
         $profile = ProfileManager::getProfileForLogin($profileName);
-        $this->browser->submitForm('Sign In', $profile);
-        return $profile;
+
+        if (method_exists($this, 'submitLoginForm')) {
+            $response = $this->submitLoginForm($profile)
+                ->assertRedirect();
+
+            $this->followRedirect($response)
+                ->assertOk();
+
+            return $profile;
+        }
+
+        throw new \LogicException('Customer login helper requires in-process storefront form helpers.');
     }
 
     public function getCouponBalanceCustomer($customerEmail)

@@ -2,9 +2,10 @@
 
 namespace Seeders;
 
+use Tests\Services\Contracts\TestSeederInterface;
 use Tests\Support\Database\TestDb;
 
-class InitialSetupSeeder
+class InitialSetupSeeder implements TestSeederInterface
 {
 
     /**
@@ -12,7 +13,7 @@ class InitialSetupSeeder
      *
      * @return void
      */
-    public function run($mainConfigs)
+    public function run(array $mainConfigs = []): void
     {
         $now = date('Y-m-d H:i:s');
 
@@ -84,11 +85,11 @@ class InitialSetupSeeder
         ]);
 
         // see if we need to set a custom smtp server - e.g. for mailpit
-        if (isset($mainConfigs['use-server']) && $mainConfigs['use-mailserver'] ) {
+        if (!empty($mainConfigs['use-mailserver'])) {
             self::setConfiguration('SEND_EMAILS', 'true');
             self::setConfiguration('EMAIL_TRANSPORT', 'smtp');
             self::setConfiguration('EMAIL_SMTPAUTH_MAIL_SERVER', $mainConfigs['mailserver-host'] ?? 'localhost');
-            self::setConfiguration('EMAIL_SMTPAUTH_MAIL_SERVER_PORT', $mainConfigs['mailserver-port'] ?? '8025');
+            self::setConfiguration('EMAIL_SMTPAUTH_MAIL_SERVER_PORT', $mainConfigs['mailserver-port'] ?? '1025');
             self::setConfiguration('EMAIL_SMTPAUTH_MAILBOX', $mainConfigs['mailserver-user'] ?? 'ddev');
             self::setConfiguration('EMAIL_SMTPAUTH_PASSWORD', $mainConfigs['mailserver-password'] ?? 'mailpit');
         }

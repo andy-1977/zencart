@@ -27,7 +27,7 @@ $review_on = '';
 $keywords_string_metatags = '';
 zen_define_default('METATAGS_DIVIDER', ', ');
 
-// Get all top category names for use with web site keywords
+// Get all top category names for use with website keywords
 $sql =
     "SELECT cd.categories_name
        FROM " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd
@@ -279,7 +279,7 @@ switch ($metatag_page_name) {
             $meta_products_name .= ($product_info_metatags->fields['metatags_products_name_status'] === '1' ? $product_info_metatags->fields['products_name'] : '');
             $meta_products_name .= ($product_info_metatags->fields['metatags_title_status'] === '1' ? ' ' . $product_info_metatags->fields['metatags_title'] : '');
             $meta_products_name .= ($product_info_metatags->fields['metatags_model_status'] === '1' ? ' [' . $product_info_metatags->fields['products_model'] . ']' : '');
-            if (zen_check_show_prices() == true) {
+            if (zen_check_show_prices()) {
                 $meta_products_name .= $meta_products_price;
             }
             $meta_products_name .= ($product_info_metatags->fields['metatags_title_tagline_status'] === '1' ? PRIMARY_SECTION . TITLE . TAGLINE : '');
@@ -311,9 +311,9 @@ switch ($metatag_page_name) {
         $meta_products_price = '';
 
         // build un-customized meta tag
-        if (META_TAG_INCLUDE_PRICE === '1' && !strstr($_GET['main_page'], 'document_general')) {
+        if (META_TAG_INCLUDE_PRICE === '1' && !str_contains($_GET['main_page'], 'document_general')) {
             if ($product_info_metatags->fields['product_is_free'] !== '1') {
-                if (zen_check_show_prices() == true) {
+                if (zen_check_show_prices()) {
                     $meta_products_price = zen_get_products_actual_price($product_info_metatags->fields['products_id']);
                     $prod_is_call_and_no_price = ($product_info_metatags->fields['product_is_call'] === '1' && $meta_products_price == 0);
                     $meta_products_price = (!$prod_is_call_and_no_price ? SECONDARY_SECTION . $currencies->display_price($meta_products_price, zen_get_tax_rate($product_info_metatags->fields['products_tax_class_id'])) : '');
@@ -340,7 +340,7 @@ switch ($metatag_page_name) {
         break;
 
     case 'product_reviews_info_OFF':
-        $sql = 
+        $sql =
             "SELECT rd.reviews_text, r.reviews_rating, r.reviews_id, r.customers_name, p.products_id, p.products_price, p.products_tax_class_id, p.products_model, pd.products_name, p.product_is_free
                FROM " . TABLE_REVIEWS . " r, " . TABLE_REVIEWS_DESCRIPTION . " rd, " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd
               WHERE r.reviews_id = " . (int)$_GET['reviews_id'] . "

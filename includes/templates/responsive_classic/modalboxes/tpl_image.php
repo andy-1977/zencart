@@ -13,16 +13,11 @@ $main_large_image = !empty($products_image_large) ? $products_image_large : $pro
 ?>
 
 <div id="productMainImage" class="centeredContent back">
-    <a href="<?php echo htmlspecialchars($main_large_image, ENT_QUOTES, 'UTF-8'); ?>"
-       onclick="openModal('imageModalPrimary'); return false;"
-       title="<?= htmlspecialchars(TEXT_CLICK_TO_ENLARGE . ' ' . $products_name, ENT_QUOTES, 'UTF-8') ?>"
-       rel="noopener">
-       
-        <?php echo zen_image(
-            $products_image_medium,
-            $products_name,
-            MEDIUM_IMAGE_WIDTH,
-            MEDIUM_IMAGE_HEIGHT
-        ); ?>
+    <a href="<?= htmlspecialchars($main_large_image, ENT_QUOTES, 'UTF-8') ?>"
+        onclick="openModal('imageModalPrimary'); return false;"
+        title="<?= htmlspecialchars(TEXT_CLICK_TO_ENLARGE . ' ' . $products_name, ENT_QUOTES, 'UTF-8') ?>"
+        rel="noopener"
+        >
+        <?= zen_image($products_image_medium, $products_name, MEDIUM_IMAGE_WIDTH, MEDIUM_IMAGE_HEIGHT) ?>
     </a>
 </div>

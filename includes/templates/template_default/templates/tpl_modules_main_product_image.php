@@ -17,20 +17,20 @@ $main_large_image = !empty($products_image_large) ? $products_image_large : $pro
 <div id="imageModalPrimary" class="imgmodal">
     <div class="imgmodal-content">
         <div onclick="closeModal('imageModalPrimary')">
-            <?php echo zen_image($main_large_image, $products_name, '', '', 'class="centered-image"'); ?>
+            <?= zen_image($main_large_image, $products_name, '', '', 'class="centered-image"') ?>
             <div class="imgmodal-close"><i class="fa-solid fa-circle-xmark"></i></div>
-            <div class="center"><?php echo htmlspecialchars($products_name, ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="center"><?= htmlspecialchars($products_name, ENT_QUOTES, 'UTF-8') ?></div>
         </div>
     </div>
 </div>
 
 <!-- Main product image -->
 <div id="productMainImage" class="centeredContent back">
-    <a href="<?php echo htmlspecialchars($main_large_image, ENT_QUOTES, 'UTF-8'); ?>"
+    <a href="<?= htmlspecialchars($main_large_image, ENT_QUOTES, 'UTF-8') ?>"
        onclick="openModal('imageModalPrimary'); return false;"
-       title="<?php echo htmlspecialchars(TEXT_CLICK_TO_ENLARGE . ' ' . $products_name, ENT_QUOTES, 'UTF-8'); ?>">
-       
-        <?php echo zen_image($products_image_medium, $products_name, MEDIUM_IMAGE_WIDTH, MEDIUM_IMAGE_HEIGHT); ?>
+       title="<?= htmlspecialchars(TEXT_CLICK_TO_ENLARGE . ' ' . $products_name, ENT_QUOTES, 'UTF-8') ?>"
+        >
+        <?= zen_image($products_image_medium, $products_name, MEDIUM_IMAGE_WIDTH, MEDIUM_IMAGE_HEIGHT) ?>
         <br>
     </a>
 </div>
